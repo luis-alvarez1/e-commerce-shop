@@ -3,10 +3,13 @@ import {
 	BeforeUpdate,
 	Column,
 	Entity,
+	OneToMany,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ProductImage } from './product-image.entity';
+import { ColumnNumericTransformer } from 'src/common/transformers/column-numeric-transformer';
 
-@Entity()
+@Entity({ name: 'products' })
 export class Product {
 	@PrimaryGeneratedColumn('uuid')
 	id: string;
@@ -15,6 +18,9 @@ export class Product {
 	title: string;
 
 	@Column('decimal', {
+		precision: 7,
+		scale: 2,
+		transformer: new ColumnNumericTransformer(),
 		default: 0,
 	})
 	price: number;
@@ -39,6 +45,15 @@ export class Product {
 
 	@Column('text')
 	gender: string;
+
+	@Column('simple-array')
+	tags: string[];
+
+	@OneToMany(() => ProductImage, (pImage) => pImage.product, {
+		cascade: true,
+		eager: true,
+	})
+	images?: ProductImage[];
 
 	@BeforeInsert()
 	checkSlugInsert() {
